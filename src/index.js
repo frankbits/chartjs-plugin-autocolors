@@ -12,17 +12,18 @@ function* hueGen() {
   }
 }
 
-function* colorGen(repeat = 1) {
+function* colorGen(repeat = 1, brightnessValues = null) {
   const hue = hueGen();
   let h = hue.next();
   while (!h.done) {
-    let rgb = hsv2rgb(Math.round(h.value * 360), 0.6, 0.8);
-    for (let i = 0; i < repeat; i++) {
-      yield {background: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 192}), border: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 144})};
-    }
-    rgb = hsv2rgb(Math.round(h.value * 360), 0.6, 0.5);
-    for (let i = 0; i < repeat; i++) {
-      yield {background: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 192}), border: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 144})};
+    if (!brightnessValues || brightnessValues.length === 0) {
+		  brightnessValues = [0.8, 0.5];
+	  }
+    for (let brightnessValue of brightnessValues) {
+      let rgb = hsv2rgb(Math.round(h.value * 360), 0.6, brightnessValue);
+      for (let i = 0; i < repeat; i++) {
+        yield {background: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 192}), border: rgbString({r: rgb[0], g: rgb[1], b: rgb[2], a: 144})};
+      }
     }
     h = hue.next();
   }
@@ -85,13 +86,13 @@ function labelMode(chart, gen, customize, mode) {
 const autocolorPlugin = {
   id: 'autocolors',
   beforeUpdate(chart, args, options) {
-    const {mode = 'dataset', enabled = true, customize, repeat} = options;
+    const {mode = 'dataset', enabled = true, customize, repeat, values} = options;
 
     if (!enabled) {
       return;
     }
 
-    const gen = colorGen(repeat);
+    const gen = colorGen(repeat, values);
 
     if (options.offset) {
       // offset the color generation by n colors
