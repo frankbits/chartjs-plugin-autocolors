@@ -36,7 +36,7 @@ function setColors(dataset, background, border, mode) {
     dataset.backgroundColor = dataset.backgroundColor || background;
     dataset.borderColor = dataset.borderColor || border;
   }
-  return dataset.backgroundColor === background && dataset.borderColor === border;
+  return dataset.backgroundColor === background || dataset.borderColor === border;
 }
 
 function getNext(color, customize, context) {
